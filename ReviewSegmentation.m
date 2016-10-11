@@ -1,23 +1,11 @@
 clear all
 
-%% --- tracking parameters
+%% --- rejection by intensity ratio
 
-maxMoveDist = 5; % in unit of micrometers
-
-minIntRatio = 1.15; % minimum intensity increase in nucleus
+minRatio = 2.0; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
-minVol = 80; % minimum object volume in cubic microns
-maxVol = 1800; % maximum volume
-
-intChannel = 2; % Channel to get intensity ratios from
-
-inputFile = 0; % 0 - new file, 1,2,{3,4} correspond to known data sets
-
-deltat = 90; % time interval in seconds
-
-
-
+intChannel = 1; % Channel to get intensity ratios from
 
 %% --- Load raw analysis results
 
@@ -27,20 +15,28 @@ thisPath = fullfile(sourceDir,sourceFile);
 
 load(thisPath);
 
-tt_vector = 0:deltat:deltat.*(numFrames-1);
-
+if replace_time_stamps
+    tt_vector = 0:deltat:deltat.*(numFrames-1);
+end
 
 %% --- Plot max projections
 
 for ff = 1:numFrames
-        
-   figure(2)
    
-   clf
+    % Reject segmented objects according to criteria
+    
+    inLimFlags = ...
+        (nucInt_cell{ff}{intChannel}...
+        ./cytoInt_cell{ff}{intChannel})>=minRatio;
+    
+    
+    figure(2)
+    
+    clf
       
-   xxCoords = cellfun(@(elmt)elmt(1),centroid_cell{ff});
-   yyCoords = cellfun(@(elmt)elmt(2),centroid_cell{ff});
-   zzCoords = cellfun(@(elmt)elmt(3),centroid_cell{ff});
+   xxCoords = cellfun(@(elmt)elmt(1),centroid_cell{ff}(inLimFlags));
+   yyCoords = cellfun(@(elmt)elmt(2),centroid_cell{ff}(inLimFlags));
+   zzCoords = cellfun(@(elmt)elmt(3),centroid_cell{ff}(inLimFlags));
    
    subplot(2,3,1)
     
@@ -55,7 +51,7 @@ for ff = 1:numFrames
    xlabel('x [\mum]')
    ylabel('y [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
@@ -76,7 +72,7 @@ for ff = 1:numFrames
    xlabel('y [\mum]')
    ylabel('z [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
@@ -98,7 +94,7 @@ for ff = 1:numFrames
    xlabel('y [\mum]')
    ylabel('z [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
@@ -117,7 +113,7 @@ for ff = 1:numFrames
    xlabel('x [\mum]')
    ylabel('y [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
@@ -133,7 +129,7 @@ for ff = 1:numFrames
    xlabel('y [\mum]')
    ylabel('z [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
@@ -150,7 +146,7 @@ for ff = 1:numFrames
    xlabel('y [\mum]')
    ylabel('z [\mum]')
    
-   colormap(gray)
+   colormap(flipud(gray))
    
    axis equal
    axis tight
