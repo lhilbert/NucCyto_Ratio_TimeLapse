@@ -7,18 +7,18 @@ componentConnectivity = 18;
 binning = 2;
 
 % Assign channels for different purposes
-segChannel = 2; % Segmentation of nuclei
+segChannel = 1; % Segmentation of nuclei
 
 dilateSpacer = 2;
 dilateMeasure = 3;
 
 % Intensity threshold for cytoplasm segmentation
-cyto_thresh = 300;
+cyto_thresh = 245;
 
 % --- iterative thresholding parameters
 adaptiveRangeFlag = false; % Switches adaptive threshold range on
-minThresh = 1600; % Lowest intensity threshold
-maxThresh = 10000; % Highest intensity threshold
+minThresh = 300; % Lowest intensity threshold
+maxThresh = 2500; % Highest intensity threshold
 threshSteps = 200; % How many threshold steps
 
 distCutoff = 4; % How far can a centroid jump between two threshold values
@@ -370,6 +370,7 @@ parfor ff = 1:numFrames
     physicalDist = cell(1,threshSteps-1);
     volRatio = cell(1,threshSteps-1);
     
+    
     for tt = 1:(threshSteps-1)
         
         if ~isempty(featureVecCell{tt+1}) ...
@@ -419,6 +420,15 @@ parfor ff = 1:numFrames
         end
     end
     
+    %%% --- beginning bug hunt iterative thresholding gap
+    
+    % Here, we start make objects with traces through the different
+    % segmentation intensities. In each step, we check for every region
+    % that has been segmented at this intensity, if a region from the
+    % previous intensity maps to it. If so, we assign it to the object that
+    % was with this region at the previous intensity. If not, we start a
+    % new object from this region. This way we will have all regions at all
+    % threshold values contained within objects.
     
     for tt = (threshSteps-1):-1:1
         
@@ -571,6 +581,10 @@ parfor ff = 1:numFrames
         end
         
     end
+    
+    
+    %%%%% --- end of bug hunt "iterative thresholding gap"
+    
     
     validObjs = keepObjects(keepFlags);
     
@@ -822,45 +836,6 @@ clear('reader')
 
 save([thisPath,'_AnalysisOutput.mat'])
 
-
-% %% --- plot overview of nuclei counts and nearest neighbor distances
-% 
-% upper_lim = cellfun(@(distr) prctile(distr,90),NN_distances_cell);
-% lower_lim = cellfun(@(distr) prctile(distr,10),NN_distances_cell);
-% 
-% subplot(1,2,1)
-% 
-% errorbar(numNuc,NN_median_vec,...
-%     lower_lim-NN_median_vec,upper_lim-NN_median_vec,...
-%     'k-o')
-% 
-% plot(numNuc(numNuc>15),NN_median_vec(numNuc>15),'k-')
-% 
-% ylabel('Nearest neighbor distance [\mum]')
-% xlabel('Nuclei count')
-% 
-% 
-% subplot(1,2,2)
-% 
-% for kk = 1:numFrames
-%     
-%     plot_color = (kk-1)./(numFrames-1).*[1.0,0,0];
-%    
-%     plot_support = linspace(0,50,500);
-%     
-%     plot_vals = ...
-%         ksdensity(NN_distances_cell{kk},plot_support,'Bandwidth',1);
-%     
-%     plot(plot_support,plot_vals,'k-','Color',plot_color)
-%     
-%     hold on
-%     
-%     xlabel('NN distance [\mum]')
-%     ylabel('Probability density')
-%     
-% end
-% 
-% hold off
 
 %% --- Plot max projections
 
