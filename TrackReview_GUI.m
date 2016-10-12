@@ -110,52 +110,52 @@ end
 if ~isfield(data,'minRatio')
     data.minRatio = str2num(get(handles.minRatioEdit,'String'));
 else
-    set(handles.minRatioEdit,num2str(data.minRatio));
+    set(handles.minRatioEdit,'String',num2str(data.minRatio));
 end
 if ~isfield(data,'Vmin')
     data.Vmin = str2num(get(handles.minVolEdit,'String'));
 else
-    set(handles.VminEdit,num2str(data.Vmin));
+    set(handles.minVolEdit,'String',num2str(data.Vmin));
 end
 if ~isfield(data,'Vmax')
     data.Vmax = str2num(get(handles.maxVolEdit,'String'));
 else
-    set(handles.VmaxEdit,num2str(data.Vmax));
+    set(handles.maxVolEdit,'String',num2str(data.Vmax));
 end
 if ~isfield(data,'minLength')
     data.minLength = str2num(get(handles.minLengthEdit,'String'));
 else
-    set(handles.minLengthEdit,num2str(data.minLength));
+    set(handles.minLengthEdit,'String',num2str(data.minLength));
 end
 if ~isfield(data,'minX')
     handles.minX = str2num(get(handles.minXedit,'String'));
 else
-    set(handles.minXedit,num2str(data.minX));
+    set(handles.minXedit,'String',num2str(data.minX));
 end
 if ~isfield(data,'maxX')
     handles.maxX = str2num(get(handles.maxXedit,'String'));
 else
-    set(handles.maxXedit,num2str(data.maxX));
+    set(handles.maxXedit,'String',num2str(data.maxX));
 end
 if ~isfield(data,'minY')
     handles.minY = str2num(get(handles.minYedit,'String'));
 else
-    set(handles.minYedit,num2str(data.minY));
+    set(handles.minYedit,'String',num2str(data.minY));
 end
 if ~isfield(data,'maxY')
     handles.maxY = str2num(get(handles.maxYedit,'String'));
 else
-    set(handles.maxYedit,num2str(data.maxY));
+    set(handles.maxYedit,'String',num2str(data.maxY));
 end
 if ~isfield(data,'minZ')
     minZ = str2num(get(handles.minZedit,'String'));
 else
-    set(handles.minZedit,num2str(data.minZ));
+    set(handles.minZedit,'String',num2str(data.minZ));
 end
 if ~isfield(data,'maxZ')
     maxZ = str2num(get(handles.maxZedit,'String'));
 else
-    set(handles.maxZedit,num2str(data.maxZ));
+    set(handles.maxZedit,'String',num2str(data.maxZ));
 end
 
 handles.data = data;

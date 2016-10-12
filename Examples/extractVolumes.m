@@ -1,15 +1,7 @@
 clear all
 
-% %% --- load a reviewed track set
-% 
-% [load_sourceFile,load_sourceDir] = uigetfile('*.*');
-% thisPath = fullfile(load_sourceDir,load_sourceFile);
-% 
-% data = load(thisPath);
+%% --- 
 
-%% --- extract volumes for specific stages
-
-numFiles = 1;
 fileTargets = [1,2,3];
 
 numTimeLapses = numel(unique(fileTargets));
@@ -21,17 +13,9 @@ indivVol_cell = cell(1,numTimeLapses);
 cytoVol_cell = cell(1,numTimeLapses);
 
 for kk = 1:numTimeLapses
+
+    kk
     
-    cellCycles_cell{kk} = [];
-    numNuc_cell{kk} = [];
-    totalVol_cell{kk} = [];
-    indivVol_cell{kk} = {};
-    cytoVol_cell{kk} = [];
-
-end
-
-for kk = 1:numFiles
-
     inputFile = kk;
     
     if inputFile == 1
@@ -43,14 +27,13 @@ for kk = 1:numFiles
     elseif inputFile == 2
         
         sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
-        saveFile = 'LiveImagingVolumes_10_G2.mat';
+        saveFile = 'TrackSet_TimeLapse_0001_G2_Subset.czi_AnalysisOutput.mat';
         
     elseif inputFile == 3
         
-        sourceDir = ...
-            '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/PCNASubsets_5Feb2016/';
-        saveFile = 'LiveImagingVolumes_5Feb_Early.mat';
-      
+        sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
+        saveFile = 'TrackSet_TimeLapse_0001_G1_Subset.czi_AnalysisOutput.mat';
+         
     end
     
     loadStruct = load(fullfile(sourceDir,saveFile));
@@ -68,21 +51,13 @@ for kk = 1:numFiles
     
     parfor ll = 1:numTimePoints
 
-        fprintf('%3.3f percent done\n',100.*(ll-1)./(numTimePoints-1))
+%         fprintf('%3.3f percent done\n',100.*(ll-1)./(numTimePoints-1))
         
         numNuc(ll) = sum( ...
             cellfun(@(elmt)ismember(ll,elmt.timeInd),includedTracks));
         
     end
     
-    figure(1)
-    
-    subplot(1,3,1)
-    
-    plot(loadStruct.tt_vector./60,numNuc,'k-')
-    
-    xlabel('Time [min]')
-    ylabel('Nuclei')
     
     % Extract sum of nuclear volumes for different stages
     
@@ -91,8 +66,8 @@ for kk = 1:numFiles
     if inputFile == 1
         
         timeWindows = ...
-            {[3,7.5],[17,22.5],[32,37],[45,51],[61,65],[75,79.5],...
-            [90,94.5],[106,112],[126,134],[150,178],[199,235],[237,300]};
+            {[3,7.5],[17,22.5],[32,37],[45,51],[62,66],[75,79.5],...
+            [90,94.5],[106,112],[126,134],[149,159],[163,173],[210,230]};
         
         window_labels = {'8','16','32','64','128','256','512','1K',...
             'hi','obl','sph','dome'};
@@ -103,25 +78,26 @@ for kk = 1:numFiles
     elseif inputFile == 2
         
         timeWindows = ...
-            {[3,14],[18,28],[33,43],[48,58],[64,76],...
-            [81,100],[108,138]};
+            {[3,14],[18,28],[33,43],[48,58],[64,74],[78,83],[94,98],...
+            [109,113],[129,134],[155,165],[173,183],[223,233]};
         
-        window_labels = {'64','128','256','512','1K',...
-            'high','oblong'};
+        window_labels = {'8','16','32','64','128','256','512','1K',...
+            'high','obl','sph','dome'};
         
         % cell cycles corresponding to stages
-        windowCellCycles = [6,7,8,9,10,11,12];
+        windowCellCycles = [3,4,5,6,7,8,9,10,11,12,13,14];
         
     elseif inputFile == 3
-        % still needs adjustment
         
         timeWindows = ...
-            {[3,8],[17,24],[30,39]};
+            {[4,9],[18,23],[33,38],[49,52],[62,66],[79,82],[94,97],...
+            [109,113],[130,133],[153,163],[175,185],[225,235]};
         
-        window_labels = {'16','32','64'};
+        window_labels = {'8','16','32','64','128','256','512','1K',...
+            'high','obl','sph','dome'};
         
         % cell cycles corresponding to stages
-        windowCellCycles = [4,5,6];
+        windowCellCycles = [3,4,5,6,7,8,9,10,11,12,13,14];
         
     end
 
@@ -153,11 +129,11 @@ for kk = 1:numFiles
             
             thisTrace = includedTracks{tt};
             
-            traceTimes = thisTrace.time;
+            traceTimes = thisTrace.time./60;
             
-            pickTraceMask(tt) =  min(traceTimes)>=minTime ...
-                && max(traceTimes)<=maxTime;
-
+            pickTraceMask(tt) =  max(traceTimes)>=minTime ...
+                && min(traceTimes)<=maxTime;
+            
             if pickTraceMask(tt)
                 
                 thisTimeInds = thisTrace.timeInd;
@@ -165,72 +141,37 @@ for kk = 1:numFiles
                 volStartInd = max([minInd,min(thisTimeInds)]);
                 volEndInd = min([maxInd,max(thisTimeInds)]);
                 
-                traceVols = thisTrace.volume(volStartInd,volEndInd);
-                peakVols(kk) = max(traceVols);
+                mappedStartInd = find(thisTimeInds==volStartInd);
+                mappedEndInd = find(thisTimeInds==volEndInd);
+                
+                volMinInd = min(mappedStartInd,mappedEndInd);
+                volMaxInd = max(mappedStartInd,mappedEndInd);
+                                
+                traceVols = thisTrace.volume(volMinInd:volMaxInd);
+                
+                peakVols(tt) = max(traceVols);
                 
             end
             
         end
         
         windowNumNuc(ww) = sum(pickTraceMask);
-        windowTotalVol(ww) = sum(peakVols.*pickTraceMask);
-        windowIndivVol(ww) = median(peakVols(pickTraceMask));
+        windowTotalVol(ww) = sum(peakVols(pickTraceMask));
+        windowIndivVol(ww) = mean(peakVols(pickTraceMask));
         
     end
-    
-    
-    subplot(1,3,2)
-    
-    plot(windowCellCycles,windowNumNuc,'k-')
-    
-    xlabel('Stage')
-    ylabel('Nuclei')
-    
-end
-    
-
-%% --- Total cytoplasmic volume
-
-[cytoVolPeaks,peakInds] = findpeaks(cyto_vol_vec,'MinPeakDistance',6);
-
-figure(3)
-
-plot(tt_vector(peakInds)./60,cytoVolPeaks,'ko')
-hold on
-plot(tt_vector./60,cyto_vol_vec,'b-')
-hold off
-
-ylim([0,inf])
-
-xlabel('Time [min]')
-ylabel('V_{cyto} [\mum^3]')
-
-cytoVol = mean(cytoVolPeaks(1:5));
-
-    
-    
-        cyto_vol = loadStruct.cyto_vol_vec;
-
         
-    
-%     cellCycles_cell{fileTargets(kk)} = ...
-%         [cellCycles_cell{fileTargets(kk)}, ...
-%         loadStruct.windowCellCycles];
-%     numNuc_cell{fileTargets(kk)} = ...
-%         [numNuc_cell{fileTargets(kk)}, ...
-%         loadStruct.windowNumNuc];
-%     totalVol_cell{fileTargets(kk)} = ...
-%         [totalVol_cell{fileTargets(kk)},...
-%         loadStruct.windowTotalVol];
-%     indivVol_cell{fileTargets(kk)} = ...
-%         {indivVol_cell{fileTargets(kk)}, ...
-%         loadStruct.windowIndivVol};
-%     cytoVol_cell{fileTargets(kk)} = ...
-%         [cytoVol_cell{fileTargets(kk)},...
-%         loadStruct.windowCytoVol];
+    % Store results for this data set
+    cellCycles_cell{kk} = windowCellCycles;
+    numNuc_cell{kk} = windowNumNuc;
+    totalVol_cell{kk} = windowTotalVol;
+    indivVol_cell{kk} = windowIndivVol;
+    cytoVol_cell{kk} = windowCytoVol;
     
 end
     
+
+%% --- Plot and save volume data
 
 figure(1)
 
@@ -240,7 +181,8 @@ plotStrings = {'k-o','r-s','b-^'};
 
 for kk = 1:numTimeLapses
     
-    plot(cellCycles_cell{kk},numNuc_cell{kk},plotStrings{kk})
+    plot(cellCycles_cell{kk},numNuc_cell{kk},...
+        plotStrings{kk})
     
     hold on
 
