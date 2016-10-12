@@ -2,61 +2,34 @@ clear all
 
 %% --- tracking parameters
 
-maxMoveDist = 25; % in unit of micrometers
+maxMoveDist = 20; % in unit of micrometers
 
-minIntRatio = 1.15; % minimum intensity increase in nucleus
+minIntRatio = 2.0; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
 minVol = 80; % minimum object volume in cubic microns
 maxVol = 1800; % maximum volume
 
-intChannel = 2; % Channel to get intensity ratios from
+intChannel = 1; % Channel to get intensity ratios from
 
 inputFile = 0; % 0 - new file, 1,2,{3,4} correspond to known data sets
 
+overrideTimstamps = false; % rplace timestamps saved during acquisition?
 deltat = 90; % time interval in seconds
 
 %% --- Load raw analysis results
-
-if inputFile == 0
     
-    [load_sourceFile,load_sourceDir] = uigetfile('*.*');
-    
-elseif inputFile == 1
-    
-    load_sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
-    load_sourceFile = ...
-        '10_G1_Subset_fullTimeCourse.czi_AnalysisOutput.mat';
-
-elseif inputFile == 2
-    
-    load_sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
-    load_sourceFile = ...
-        '10_G2_Subset.czi_AnalysisOutput.mat';
-
-elseif inputFile == 3
-    
-    load_sourceDir = ...
-        '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/PCNASubsets_5Feb2016/';
-    load_sourceFile = ...
-        'Image_16_Subset.czi_AnalysisOutput.mat';
-
-elseif inputFile == 4
-    
-    load_sourceDir = ...
-        '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/PCNASubsets_5Feb2016/';
-    load_sourceFile = ...
-        'Image_18_Subset.czi_AnalysisOutput.mat';
-
-end
+[load_sourceFile,load_sourceDir] = uigetfile('*.*');
 
 thisPath = fullfile(load_sourceDir,load_sourceFile);
 
 load(thisPath);
 
-% Overrides time data of stack itself, comment out when time info not
-% corrupted
-tt_vector = 0:deltat:deltat.*(numFrames-1);
+if overrideTimstamps
+    % Overrides time data of stack itself, comment out when time info not
+    % corrupted
+    tt_vector = 0:deltat:deltat.*(numFrames-1);
+end
 
 
 %% --- Nucleus tracking

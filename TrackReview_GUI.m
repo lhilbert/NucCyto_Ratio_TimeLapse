@@ -187,12 +187,12 @@ Vmin = str2num(get(handles.minVolEdit,'String'));
 Vmax = str2num(get(handles.maxVolEdit,'String'));
 minLength = str2num(get(handles.minLengthEdit,'String'));
 
-minX = str2num(get(handles.minXEdit,'String'));
-maxX = str2num(get(handles.maxXEdit,'String'));
-minY = str2num(get(handles.minXEdit,'String'));
-maxY = str2num(get(handles.maxXEdit,'String'));
-minZ = str2num(get(handles.minXEdit,'String'));
-maxZ = str2num(get(handles.maxXEdit,'String'));
+minX = str2num(get(handles.minXedit,'String'));
+maxX = str2num(get(handles.maxXedit,'String'));
+minY = str2num(get(handles.minYedit,'String'));
+maxY = str2num(get(handles.maxYedit,'String'));
+minZ = str2num(get(handles.minZedit,'String'));
+maxZ = str2num(get(handles.maxZedit,'String'));
 
 save(handles.data.loadPath,'inLimitsFlags','rejectFlags',...
     'minRatio','Vmin','Vmax','minLength',...
@@ -275,8 +275,8 @@ guidata(hObject,handles);
 
 axes(handles.axes_xy)
 imagesc(handles.axes_xy,...
-    [0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
     [0,floor(handles.data.rawStackSizeY./handles.data.binning).*handles.data.voxelSizeY],...
+    [0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
     handles.data.zmaxProj_cell{ff}');
 hold on
 if ~showRejected
@@ -293,9 +293,9 @@ axis tight
 hold off
 
 axes(handles.axes_xz)
-imagesc(handles.axes_xz,[0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
+imagesc(handles.axes_xz,[0,floor(handles.data.rawStackSizeY./handles.data.binning).*handles.data.voxelSizeY],...
     [0,floor(handles.data.rawStackSizeZ./handles.data.binning).*handles.data.voxelSizeZ],...
-    handles.data.ymaxProj_cell{ff}.')
+    handles.data.xmaxProj_cell{ff}.')
 hold on
 if ~showRejected
     plot(handles.axes_xz,xxCoords,zzCoords,'ro')
@@ -313,9 +313,9 @@ hold off
 
 
 axes(handles.axes_yz)
-imagesc(handles.axes_yz,[0,floor(handles.data.rawStackSizeY./handles.data.binning).*handles.data.voxelSizeY],...
+imagesc(handles.axes_yz,[0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
     [0,floor(handles.data.rawStackSizeZ./handles.data.binning).*handles.data.voxelSizeZ],...
-    handles.data.xmaxProj_cell{ff}.')
+    handles.data.ymaxProj_cell{ff}.')
 hold on
 if ~showRejected
     plot(handles.axes_yz,yyCoords,zzCoords,'ro')
