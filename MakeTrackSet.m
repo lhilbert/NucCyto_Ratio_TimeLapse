@@ -2,12 +2,12 @@ clear all
 
 %% --- tracking parameters
 
-maxMoveDist = 20; % in unit of micrometers
+maxMoveDist = 25; % in unit of micrometers
 
-minIntRatio = 1.85; % minimum intensity increase in nucleus
+minIntRatio = 1.4; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
-minVol = 80; % minimum object volume in cubic microns
+minVol = 50; % minimum object volume in cubic microns
 maxVol = 1800; % maximum volume
 
 intChannel = 1; % Channel to get intensity ratios from

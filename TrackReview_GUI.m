@@ -273,11 +273,14 @@ handles.data.zzCoords = zzCoords;
 
 guidata(hObject,handles);
 
+% Saturate the brightest pixels of the image
+intLim = prctile(handles.data.zmaxProj_cell{ff}(:),[1,99]);
+
 axes(handles.axes_xy)
 imagesc(handles.axes_xy,...
     [0,floor(handles.data.rawStackSizeY./handles.data.binning).*handles.data.voxelSizeY],...
     [0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
-    handles.data.zmaxProj_cell{ff}');
+    handles.data.zmaxProj_cell{ff}',intLim);
 hold on
 if ~showRejected
     plot(handles.axes_xy,xxCoords,yyCoords,'ro')
@@ -295,7 +298,7 @@ hold off
 axes(handles.axes_xz)
 imagesc(handles.axes_xz,[0,floor(handles.data.rawStackSizeY./handles.data.binning).*handles.data.voxelSizeY],...
     [0,floor(handles.data.rawStackSizeZ./handles.data.binning).*handles.data.voxelSizeZ],...
-    handles.data.xmaxProj_cell{ff}.')
+    handles.data.xmaxProj_cell{ff}.',intLim)
 hold on
 if ~showRejected
     plot(handles.axes_xz,xxCoords,zzCoords,'ro')
@@ -315,7 +318,7 @@ hold off
 axes(handles.axes_yz)
 imagesc(handles.axes_yz,[0,floor(handles.data.rawStackSizeX./handles.data.binning).*handles.data.voxelSizeX],...
     [0,floor(handles.data.rawStackSizeZ./handles.data.binning).*handles.data.voxelSizeZ],...
-    handles.data.ymaxProj_cell{ff}.')
+    handles.data.ymaxProj_cell{ff}.',intLim)
 hold on
 if ~showRejected
     plot(handles.axes_yz,yyCoords,zzCoords,'ro')

@@ -13,13 +13,13 @@ dilateSpacer = 2;
 dilateMeasure = 3;
 
 % Intensity threshold for cytoplasm segmentation
-cyto_thresh = 245;
+cyto_thresh = 250;
 
 % --- iterative thresholding parameters
 adaptiveRangeFlag = false; % Switches adaptive threshold range on
 minThresh = 300; % Lowest intensity threshold
-maxThresh = 2500; % Highest intensity threshold
-threshSteps = 200; % How many threshold steps
+maxThresh = 3000; % Highest intensity threshold
+threshSteps = 80; % How many threshold steps
 
 distCutoff = 4; % How far can a centroid jump between two threshold values
 %values before being considered a different object
@@ -515,21 +515,25 @@ parfor ff = 1:numFrames
     keepObjects = objects(keepFlags);
     
     for oo = 1:numel(keepObjects)
+
+        % normalized volume difference between different thresholds
+        volDiff = diff(keepObjects{oo}.volTrack) ...
+            ./keepObjects{oo}.volTrack(1:end-1);
+        minDiff = min(volDiff);
+        minDiffInd = find(volDiff==minDiff,1,'last');
+
         
-        %     volDiff = diff(keepObjects{oo}.volTrack) ...
-        %         ./keepObjects{oo}.volTrack(1:end-1);
-        %
-        %
-        centrs = keepObjects{oo}.centrTrack;
-        scalVec = [voxelSizeY,voxelSizeX,voxelSizeZ];
-        centrDiff = zeros(1,numel(centrs)-1);
-        for pp = 1:numel(centrs)-1
-            centrDiff(pp) = sqrt( ...
-                sum((centrs{pp}.*scalVec-centrs{pp+1}.*scalVec).^2));
-        end
-        centrDiff = centrDiff./keepObjects{oo}.volTrack(1:end-1);
-        minDiff = min(centrDiff);
-        minDiffInd = find(centrDiff==minDiff,1,'last');
+        % centroid displacement difference
+%         centrs = keepObjects{oo}.centrTrack;
+%         scalVec = [voxelSizeY,voxelSizeX,voxelSizeZ];
+%         centrDiff = zeros(1,numel(centrs)-1);
+%         for pp = 1:numel(centrs)-1
+%             centrDiff(pp) = sqrt( ...
+%                 sum((centrs{pp}.*scalVec-centrs{pp+1}.*scalVec).^2));
+%         end
+%         centrDiff = centrDiff./keepObjects{oo}.volTrack(1:end-1);
+%         minDiff = min(centrDiff);
+%         minDiffInd = find(centrDiff==minDiff,1,'last');
         
         %             minDiffInd = numel(keepObjects{oo}.volTrack)-1;
         keepObjects{oo}.threshInd = keepObjects{oo}.threshTrack(minDiffInd);

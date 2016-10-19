@@ -15,9 +15,6 @@ thisPath = fullfile(sourceDir,sourceFile);
 
 load(thisPath);
 
-if replace_time_stamps
-    tt_vector = 0:deltat:deltat.*(numFrames-1);
-end
 
 %% --- Plot max projections
 
