@@ -26,7 +26,7 @@ for tt = 1:numTracks
        
     subplot(2,1,1)
 
-    lh = plot(tracks{tt}.time, ...
+    lh = plot(tracks{tt}.time./60, ...
         tracks{tt}.nucIntensity{1}./tracks{tt}.cytoIntensity{1},'k-');
     set(lh,'Color',[0,0,0,0.075])
     
@@ -35,15 +35,15 @@ for tt = 1:numTracks
 end
 
 
-set(gca,'XLim',tt_vector([1,end]))
-xlabel('Time [sec]')
-ylabel('N/C Pol II Ser2Phos')
+set(gca,'XLim',tt_vector([1,end])./60)
+xlabel('Time [min]')
+ylabel('N/C Channel 1')
 
 for tt = 1:numTracks
         
     subplot(2,1,2)
     
-    lh = plot(tracks{tt}.time, ...
+    lh = plot(tracks{tt}.time./60, ...
         tracks{tt}.nucIntensity{2}./tracks{tt}.cytoIntensity{2},'k-',...
         'Color',[0,0,0,0.6]);
     set(lh,'Color',[0,0,0,0.075])
@@ -52,7 +52,7 @@ for tt = 1:numTracks
    
 end
 
-xlabel('Time [sec]')
-ylabel('N/C H3K27ac')
+xlabel('Time [min]')
+ylabel('N/C Channel 2')
 
-set(gca,'XLim',tt_vector([1,end]))
+set(gca,'XLim',tt_vector([1,end])./60)

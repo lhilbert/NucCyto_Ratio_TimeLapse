@@ -106,20 +106,21 @@ else
     numFrames = stackStruct.numTimes;
     
     % --- get time stamps of the individual frames, in seconds
+    timeStep = 90; % time step between frames, in seconds
+    % --- voxel edge sizes in micrometers
+    rawVoxelSizeX = 0.5;
+    rawVoxelSizeY = 0.5;
+    rawVoxelSizeZ = 4;
+    
     tt_vector = zeros(1,numFrames);
     for kk = 1:numFrames
         
-        tt_vector(kk) = kk.*90; % Time points in seconds
+        tt_vector(kk) = kk.*timeStep; % Time points in seconds
         
     end
     
     tt_start_recording = tt_vector(1);
     tt_vector = tt_vector-tt_vector(1);
-    
-    % --- voxel edge sizes in micrometers
-    rawVoxelSizeX = 0.5;
-    rawVoxelSizeY = 0.5;
-    rawVoxelSizeZ = 4;
     
     % --- get the spatial stack dimensions
     rawStackSizeX = stackStruct.rawStackSizeX; % image width, pixels
@@ -825,8 +826,11 @@ parfor ff = 1:numFrames
                     
                     % -- Determine nuclear and cytoplasmic intensities
                     
-                    cytoInt{cc}(nn) = mean(maxContrastImage(measureMask));
-                    nucInt{cc}(nn) = mean(maxContrastImage(nucMask));
+                    quantImage = binnedStack{cc}(...
+                        extMinY:extMaxY,extMinX:extMaxX,maxContrastInd);
+                    
+                    cytoInt{cc}(nn) = mean(quantImage(measureMask));
+                    nucInt{cc}(nn) = mean(quantImage(nucMask));
                     
                 end
                 

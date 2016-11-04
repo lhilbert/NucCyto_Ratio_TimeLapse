@@ -68,17 +68,17 @@ for kk = 1:numTimeLapses
     if inputFile == 1
         % Load first timelapse results
         
-        sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
+        sourceDir = '/Users/hilbert/academia/VastenhouwLab/WholeEmbryoHistoneRatioAnalysis/LiveImagingData/';
         saveFile = 'TrackSet_TimeLapse_0001_G3_Subset.czi_AnalysisOutput.mat';
                 
     elseif inputFile == 2
         
-        sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
+        sourceDir = '/Users/hilbert/academia/VastenhouwLab/WholeEmbryoHistoneRatioAnalysis/LiveImagingData/';
         saveFile = 'TrackSet_TimeLapse_0001_G2_Subset.czi_AnalysisOutput.mat';
         
     elseif inputFile == 3
         
-        sourceDir = '/Users/hilbert/Desktop/Imaging/PCNA_SPIM_Volumes/';
+        sourceDir = '/Users/hilbert/academia/VastenhouwLab/WholeEmbryoHistoneRatioAnalysis/LiveImagingData/';
         saveFile = 'TrackSet_TimeLapse_0001_G1_Subset.czi_AnalysisOutput.mat';
          
     end
@@ -340,6 +340,8 @@ stageNames = {'8','16','32','64','128','256','512','1K','Hi',...
 
 figure(3)
 
+clf
+
 for kk = 1:numTimeLapses
     
     for ww = 1:numel(singleNucleiVolumes_cell{kk})
@@ -349,7 +351,7 @@ for kk = 1:numTimeLapses
         plot_color = [1,0.6,0.6].*(kk-1) ...
             ./(numTimeLapses-1);
         
-        xx_support = linspace(0,2e4,500);
+        xx_support = linspace(0,1e4,500);
         
         [yy,xx] = ksdensity(singleNucleiVolumes_cell{kk}{ww},...
             xx_support,...
@@ -374,7 +376,8 @@ for ww = 1:numel(singleNucleiVolumes_cell{kk})
     
     hold off
     
+    ylabel('Bin count')
+    
 end
 
-xlabel('Nuceus volume [\mum^3]')
-ylabel('Bin count')
+xlabel('Nulceus volume [\mum^3]')
