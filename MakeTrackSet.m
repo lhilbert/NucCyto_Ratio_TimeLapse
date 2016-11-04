@@ -7,10 +7,7 @@ maxMoveDist = 25; % in unit of micrometers
 minIntRatio = 1.4; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
-minVol = 50; % minimum object volume in cubic microns
-maxVol = 1800; % maximum volume
-
-intChannel = 1; % Channel to get intensity ratios from
+intChannel = 3; % Channel to get intensity ratios from
 
 inputFile = 0; % 0 - new file, 1,2,{3,4} correspond to known data sets
 
