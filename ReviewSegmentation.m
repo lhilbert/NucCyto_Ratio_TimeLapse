@@ -2,10 +2,10 @@ clear all
 
 %% --- rejection by intensity ratio
 
-minRatio = 2.0; % minimum intensity increase in nucleus
+minRatio = 1.025; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
-intChannel = 1; % Channel to get intensity ratios from
+intChannel = 3; % Channel to get intensity ratios from
 
 %% --- Load raw analysis results
 
@@ -20,6 +20,8 @@ load(thisPath);
 
 for ff = 1:numFrames
    
+    disp(nucInt_cell{ff}{intChannel}./cytoInt_cell{ff}{intChannel})
+    
     % Reject segmented objects according to criteria
     
     inLimFlags = ...

@@ -2,9 +2,9 @@ clear all
 
 %% --- tracking parameters
 
-maxMoveDist = 25; % in unit of micrometers
+maxMoveDist = 20; % in unit of micrometers
 
-minIntRatio = 1.4; % minimum intensity increase in nucleus
+minIntRatio = 1.025; % minimum intensity increase in nucleus
 % vs. surrounding cytoplasm
 
 intChannel = 3; % Channel to get intensity ratios from

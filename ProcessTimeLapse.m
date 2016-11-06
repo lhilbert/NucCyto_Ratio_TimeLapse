@@ -17,21 +17,21 @@ dilateSpacer = 2;
 dilateMeasure = 3;
 
 % Intensity threshold for cytoplasm segmentation
-cyto_thresh = 20;
+cyto_thresh = 30;
 
 % --- iterative thresholding parameters
 adaptiveRangeFlag = false; % Switches adaptive threshold range on
-minThresh = 40; % Lowest intensity threshold
+minThresh = 55; % Lowest intensity threshold
 maxThresh = 250; % Highest intensity threshold
-threshSteps = 40; % How many threshold steps
+threshSteps = 60; % How many threshold steps
 
-distCutoff = 4; % How far can a centroid jump between two threshold values
+distCutoff = 5; % How far can a centroid jump between two threshold values
 %values before being considered a different object
 volRatioCutoff = 0.5; % Change in volume to not trace object across
 %thresholds, lower is more lenient, 1.0 the maximum stringency
-segMinVol = 25; % minimum volume for nucleus to be recognized,
+segMinVol = 300; % minimum volume for nucleus to be recognized,
 % unit: cubic micrometers
-segMaxVol = 30.*10.^3; % maximum volume for nucleus to be recognized,
+segMaxVol = 2.*1e5; % maximum volume for nucleus to be recognized,
 % unit: cubic micrometers
 segMinTrackLength = 3;
 
@@ -108,8 +108,8 @@ else
     % --- get time stamps of the individual frames, in seconds
     timeStep = 90; % time step between frames, in seconds
     % --- voxel edge sizes in micrometers
-    rawVoxelSizeX = 0.5;
-    rawVoxelSizeY = 0.5;
+    rawVoxelSizeX = 0.828;
+    rawVoxelSizeY = 0.828;
     rawVoxelSizeZ = 4;
     
     tt_vector = zeros(1,numFrames);
@@ -186,7 +186,7 @@ end
 
 errorFlagVec = false(1,numFrames);
 
-parfor ff = 1:numFrames
+for ff = 1:numFrames
     
     if ~parallel_switch
         
@@ -242,7 +242,7 @@ parfor ff = 1:numFrames
                     
                     % Direct assigment
                     rawStack{cc}(:,:,ll) = ...
-                        read_TT_TiffStacks(stackStruct,[cc,ff,ll])
+                        read_TT_TiffStacks(stackStruct,[cc,ff,ll]);
                     
                     if ~parallel_switch
                         parfor_progress;
@@ -592,6 +592,7 @@ parfor ff = 1:numFrames
             % normalized volume difference between different thresholds
             volDiff = diff(keepObjects{oo}.volTrack) ...
                 ./keepObjects{oo}.volTrack(1:end-1);
+            
             minDiff = min(volDiff);
             minDiffInd = find(volDiff==minDiff,1,'last');
             
@@ -827,7 +828,8 @@ parfor ff = 1:numFrames
                     % -- Determine nuclear and cytoplasmic intensities
                     
                     quantImage = binnedStack{cc}(...
-                        extMinY:extMaxY,extMinX:extMaxX,maxContrastInd);
+                        extMinY:extMaxY,extMinX:extMaxX,...
+                        MinZ+maxContrastInd-1);
                     
                     cytoInt{cc}(nn) = mean(quantImage(measureMask));
                     nucInt{cc}(nn) = mean(quantImage(nucMask));

@@ -167,21 +167,89 @@ save([sourceDir,'LiveImagingVolumes'],...
 
 %% --- Plot volume data
 
+figure(1)
+clf
+
+figure(2)
+clf
+
 plotStrings = {'k-o','r-s','b-^'};
 
-
 for kk = 1:numTimeLapses
-    
+
     numStages = numel(timeWindow_cell{kk});
     
+    rhoVector = zeros(1,numStages);
+    pValVector = zeros(1,numStages);
+
     for ww = 1:numStages
     
-        plotColor = [0.7,0.7,0.7].*(ww-1)./(numStages-1);
+        figure(1)
         
+        plotColor = [0.7.*(ww-1)./(numStages-1),...
+            0.7.*(ww-1)./(numStages-1),...
+            0.7.*(ww-1)./(numStages-1)];
+
+        subplot(1,3,1)
+                
         plot(volumes_cell{kk}{ww}(:),NCratio_cell{kk}{ww}(1,:),...
-            'ko','MarkerEdgeColor',plotColor)
-    
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('V [\mum^3]')
+        ylabel('N/C A488')
+        
         hold on
+        
+               
+        subplot(1,3,2)
+        
+        plot(volumes_cell{kk}{ww}(:),NCratio_cell{kk}{ww}(3,:),...
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('V [\mum^3]')
+        ylabel('N/C Cy5')
+        
+        hold on
+        
+        
+        
+        subplot(1,3,3)
+                
+        plot(NCratio_cell{kk}{ww}(2,:),NCratio_cell{kk}{ww}(1,:),...
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('N/C Cy3')
+        ylabel('N/C A488')
+        
+        hold on
+        
+        
+        figure(2)
+        
+        subplot(1,numStages,ww)
+                
+        plot(NCratio_cell{kk}{ww}(2,:),NCratio_cell{kk}{ww}(1,:),...
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('N/C Cy3')
+        ylabel('N/C A488')
+        
+        set(gca,'XLim',[1,7.5],'YLim',[1,2.5])
+        
+        
+        A488_ratios = NCratio_cell{kk}{ww}(1,:);
+        Cy3_ratios = NCratio_cell{kk}{ww}(2,:);
+        
+        keepRatios = ~isnan(A488_ratios)&~isnan(Cy3_ratios);
+        
+        A488_ratios = A488_ratios(keepRatios);
+        Cy3_ratios = Cy3_ratios(keepRatios);
+        
+        [rho,pval] = corr([A488_ratios.',Cy3_ratios.']);
+        
+        rhoVector(ww) = rho(2,1);
+        pValVector(ww) = pval(2,1);
+        
         
     end
     
