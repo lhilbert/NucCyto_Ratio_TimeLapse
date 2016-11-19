@@ -1,5 +1,7 @@
 clear all
 
+plotIndividualTracks = false;
+
 [load_sourceFile,load_sourceDir] = uigetfile('*.*');
 thisPath = fullfile(load_sourceDir,load_sourceFile);
 
@@ -14,6 +16,59 @@ tracks = data.tracks(useInds);
 
 numTracks = numel(tracks);
 
+numChannels = numel(tracks{1}.nucIntensity);
+
+%% Run through time course and get average N/C ratio for all channels
+
+numFrames = data.numFrames;
+frameTimes = data.tt_vector;
+
+NC_ratio_storage_cell = cell(numChannels,numFrames);
+
+for kk = 1:numFrames
+    
+    disp(numFrames-kk);
+    
+    for cc = 1:numChannels
+        
+        NC_ratio_storage_cell{cc,kk} = [];
+        
+    end
+    
+    for ll = 1:numTracks
+       
+        thisTrack = tracks{ll};
+        
+        [correctTimeFlag,correctTimeInd] = ...
+            ismember(kk,thisTrack.timeInd);
+        
+        if correctTimeFlag
+           
+            for cc = 1:numChannels
+            
+                nucInt = thisTrack.nucIntensity{cc}(correctTimeInd);
+                cytoInt = thisTrack.cytoIntensity{cc}(correctTimeInd);
+            
+                NC_ratio_storage_cell{cc,kk} = ...
+                    [NC_ratio_storage_cell{cc,kk},nucInt./cytoInt];
+                
+            end
+            
+        end
+        
+    end
+    
+end
+
+numNuc = cellfun(@(elmt)numel(elmt),NC_ratio_storage_cell(1,:));
+NC_ratio_storage_mean = ...
+    cellfun(@(elmt)mean(elmt,'omitnan'),NC_ratio_storage_cell);
+NC_ratio_storage_stdev = ...
+    cellfun(@(elmt)std(elmt,'omitnan'),NC_ratio_storage_cell);
+
+
+
+
 %% plotting
 
 tt_vector = data.tt_vector;
@@ -22,37 +77,79 @@ figure(1)
 
 clf
 
-for tt = 1:numTracks
-       
-    subplot(2,1,1)
-
-    lh = plot(tracks{tt}.time./60, ...
-        tracks{tt}.nucIntensity{1}./tracks{tt}.cytoIntensity{1},'k-');
-    set(lh,'Color',[0,0,0,0.075])
+for cc = 1:numChannels
     
-    hold on
+    subplot(1+2.*numChannels,1,(1+2.*(cc-1)):(2+2.*(cc-1)))
     
-end
-
-
-set(gca,'XLim',tt_vector([1,end])./60)
-xlabel('Time [min]')
-ylabel('N/C Channel 1')
-
-for tt = 1:numTracks
+    if plotIndividualTracks
         
-    subplot(2,1,2)
+        for tt = 1:numTracks
+            
+            
+            lh = plot(tracks{tt}.time./60, ...
+                tracks{tt}.nucIntensity{cc}./tracks{tt}.cytoIntensity{cc},'k-');
+            set(lh,'Color',[0,0,0,0.075])
+            
+            hold on
+            
+        end
+        
+    end
     
-    lh = plot(tracks{tt}.time./60, ...
-        tracks{tt}.nucIntensity{2}./tracks{tt}.cytoIntensity{2},'k-',...
-        'Color',[0,0,0,0.6]);
-    set(lh,'Color',[0,0,0,0.075])
-    
+    plot(tt_vector./60,NC_ratio_storage_mean(cc,:),'k-')
     hold on
-   
+    plot(tt_vector./60,NC_ratio_storage_mean(cc,:)...
+        +NC_ratio_storage_stdev(cc,:),'k-',...
+        'Color',[0.6,0.6,0.6])
+    plot(tt_vector./60,NC_ratio_storage_mean(cc,:)...
+        -NC_ratio_storage_stdev(cc,:),'k-',...
+        'Color',[0.6,0.6,0.6])
+    hold off
+    
+    set(gca,'XLim',tt_vector([1,end])./60,'XTickLabel',[])
+    xlabel('')
+    ylabel(sprintf('N/C Channel %d',cc))
+    
 end
 
+subplot(1+2.*numChannels,1,1+2.*numChannels)
+plot(tt_vector./60,numNuc,'k-')
 xlabel('Time [min]')
-ylabel('N/C Channel 2')
+ylabel('Nuclei')
 
-set(gca,'XLim',tt_vector([1,end])./60)
+%% Write to .csv file
+
+saveFile = fullfile(...
+    load_sourceDir,[load_sourceFile(1:end-4),'_export.csv']);
+
+columnLabels = cell(2.*(cc+1),1);
+
+columnLabels{1} = 'Time(min)';
+columnLabels{2} = 'numNuc';
+
+writeArray = zeros(numFrames,2.*(cc+1));
+writeArray(:,1) = tt_vector./60;
+writeArray(:,2) = numNuc;
+
+for cc = 1:numChannels
+   
+    columnLabels{1+2.*cc} = sprintf('Mean(Ch%d)',cc);
+    columnLabels{2+2.*cc} = sprintf('STdev(Ch%d)',cc);
+    
+    writeArray(:,1+2.*cc) = NC_ratio_storage_mean(cc,:);
+    writeArray(:,2+2.*cc) = NC_ratio_storage_stdev(cc,:);
+
+end
+
+
+fid = fopen(saveFile,'w');
+for index = 1:(2.*(cc+1)-1)    
+    fprintf(fid, '%s,', columnLabels{index});
+end 
+fprintf(fid, '%s\n', columnLabels{end});
+fclose(fid);
+
+dlmwrite(saveFile,writeArray,'-append', 'delimiter', ',');
+
+
+% csvwrite(saveFile,writeArray,1,5);

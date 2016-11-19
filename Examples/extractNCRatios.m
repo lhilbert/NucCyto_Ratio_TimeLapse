@@ -226,8 +226,31 @@ for kk = 1:numTimeLapses
         
         figure(2)
         
-        subplot(1,numStages,ww)
+        
+        subplot(3,numStages,ww)
                 
+        plot(volumes_cell{kk}{ww}(:),NCratio_cell{kk}{ww}(1,:),...
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('Volume [\mum^3]')
+        ylabel('N/C A488')
+        
+        set(gca,'YLim',[1,2.5])
+        
+        
+        subplot(3,numStages,ww+numStages)
+          
+        plot(volumes_cell{kk}{ww}(:),NCratio_cell{kk}{ww}(3,:),...
+            'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
+
+        xlabel('Volume [\mum^3]')
+        ylabel('N/C Cy5')
+        
+        set(gca,'YLim',[1,6])
+        
+        
+        subplot(3,numStages,ww+2.*numStages)
+        
         plot(NCratio_cell{kk}{ww}(2,:),NCratio_cell{kk}{ww}(1,:),...
             'ko','MarkerEdgeColor',plotColor,'MarkerSize',3)
 
@@ -235,6 +258,8 @@ for kk = 1:numTimeLapses
         ylabel('N/C A488')
         
         set(gca,'XLim',[1,7.5],'YLim',[1,2.5])
+        
+        
         
         
         A488_ratios = NCratio_cell{kk}{ww}(1,:);
