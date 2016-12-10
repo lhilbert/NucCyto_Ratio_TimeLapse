@@ -153,3 +153,46 @@ dlmwrite(saveFile,writeArray,'-append', 'delimiter', ',');
 
 
 % csvwrite(saveFile,writeArray,1,5);
+
+
+%% -- write individual values to comma separated file
+
+
+for cc = 1:numChannels
+
+    saveFile = fullfile(...
+        load_sourceDir,[load_sourceFile(1:end-4),...
+        sprintf('_export_indNuclei_Ch%d.csv',cc)]);
+
+    fid = fopen(saveFile,'w');
+    
+    for kk = 1:numFrames
+    
+        thisFrameRatios = sort(NC_ratio_storage_cell{cc,kk},'descend');
+        
+        thisFrameRatios = thisFrameRatios(~isnan(thisFrameRatios));
+        
+        fprintf(fid,'%6.6f,',thisFrameRatios);
+        fprintf(fid,'\n');
+        
+    end
+
+    fclose(fid);
+    
+end
+
+% write out time stamps
+
+saveFile = fullfile(...
+    load_sourceDir,[load_sourceFile(1:end-4),...
+    sprintf('_export_indNuclei_timestamps.csv')]);
+
+fid = fopen(saveFile,'w');
+
+for kk = 1:numFrames
+        
+    fprintf(fid,'%6.6f\n',tt_vector(kk)./60);
+    
+end
+
+fclose(fid);
